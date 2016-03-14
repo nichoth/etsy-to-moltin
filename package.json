@@ -3,6 +3,8 @@
     "JSONStream": "^1.1.1",
     "csv-parser": "^1.9.3",
     "dotenv": "^2.0.0",
+    "form-data": "^0.2.0",
+    "got": "^6.2.0",
     "lodash.intersectionwith": "^4.1.1",
     "lodash.map": "^4.2.1",
     "lodash.mapkeys": "^4.2.0",
@@ -12,5 +14,8 @@
     "node-cb": "0.0.0",
     "slug": "^0.9.1",
     "xtend": "^4.0.1"
+  },
+  "devDependencies": {
+    "jimp": "^0.2.21"
   }
 }

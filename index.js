@@ -14,11 +14,10 @@ function moltinUploader(moltin) {
 
   var moltinUploadStream = map(function(prod, next) {
     var create = wrap(moltin.Product.Create.bind(moltin.Product));
-
+    create(prod, next);
   });
 
   return moltinUploadStream;
-
 }
 
 var etsyToMoltin = function(cats) {
