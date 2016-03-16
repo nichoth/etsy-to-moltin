@@ -5,6 +5,7 @@ Take product data from etsy and put it into moltin. Automatically creates images
 
 ## example
 
+Create products from a csv file.
 
 ```js
 require('dotenv').config();
