@@ -5,7 +5,10 @@ Take product data from etsy and put it into moltin. Automatically creates images
 
 ## example
 
+
 ```js
+require('dotenv').config();
+var fs = require('fs');
 var csv = require('csv-parser');
 var client = require('moltin-util')({
   publicId: process.env.PUBLIC_ID,
@@ -18,12 +21,12 @@ client.request(client.endpoints.CATEGORIES)
   .then(resp => resp.result)
   .then(categories => {
 
-    fs.createReadStream('file.csv')
+    fs.createReadStream(__dirname+'/one-product.csv')
       .pipe(csv())
-      .pipe(uploader(client, mapFn.bind(null, categories), done)
-    ;
+      .pipe(uploader(client, mapFn.bind(null, categories), done))
 
   })
+  .catch(err => console.log('err', err));
 ;
 
 // take an etsy product and return data for the moltin product.
@@ -33,11 +36,12 @@ function mapFn(categories, etsyProduct) {
     tax_band: '123',
     // convenience function that returns the first category that
     // matches one of the etsy product's tags
-    category: uploader.findCategory(categories, etsyProduct)
+    category: uploader.findCategory(etsyProduct, categories)
   };
 }
 
 function done(err, res) {
+  if (err) return console.log('error', err, err.response.body);
   console.log('created ' + res.length + ' products');
 }
 ```
