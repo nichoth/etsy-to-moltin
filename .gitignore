@@ -91,3 +91,5 @@ node_modules
 bundle.js
 .env
 etsy.csv
+product-opts.json
+4-rows.csv
