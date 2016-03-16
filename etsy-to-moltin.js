@@ -6,38 +6,37 @@ var xtend = require('xtend');
 
 module.exports = etsyToMoltin;
 
-// categories = [ {} ]
-// opts = anything to send to moltin in the create product request
-// => readable stream that emits `{ product: {}, images: ['http://...'] }`
-function etsyToMoltin(categories, opts) {
 
-  // map from category slug to category
-  categories = categories.reduce( (acc, c) => {
-    acc[c.slug] = c;
-    return acc;
-  }, {});
 
-  return map(function(etsyProd, next) {
+// mapper = ({}) => {}
+// take etsy product and return moltin product. The only required fields are:
+// {
+//   category: 'id',
+//   tax_band: 'id'
+// }
+function etsyToMoltin(mapper) {
+
+  var stream = map(function(etsyProd, next) {
 
     etsyProd = mapKeys(etsyProd, (v, k) => k.toLowerCase());
 
-    var moltinProduct = pick(etsyProd, [
+    var moltinProductDefaults = pick(etsyProd, [
       'title',
       'price',
       'description'
     ]);
 
-    moltinProduct = xtend(moltinProduct, {
+    moltinProductDefaults = xtend(moltinProductDefaults, {
       slug: slugify(etsyProd.title).toLowerCase(),
       sku: slugify(etsyProd.title).toLowerCase(),
       status: 1,
-      category: getCategory(etsyProd, categories),
       stock_level: etsyProd.quantity,
       stock_status: 1,
       requires_shipping: 1,
-      catalog_only: 0,
-      tax_band: ''
-    }, opts);
+      catalog_only: 0
+    });
+
+    var moltinProduct = xtend(moltinProductDefaults, mapper(etsyProd));
 
     var images = (function(etsyProd) {
       var imgs = [];
@@ -51,15 +50,28 @@ function etsyToMoltin(categories, opts) {
     next(null, { product: moltinProduct, images: images });
   });
 
+  return stream;
+
+}
+
+
+function catsBySlug(cats) {
+  return cats.reduce( (acc, c) => {
+    acc[c.slug] = c;
+    return acc;
+  }, {});
 }
 
 // => id for category that matches an etsy tag
-function getCategory(etsyProd, cats) {
-  var catSlugs = Object.keys(cats);
+function findCategory(etsyProd, cats) {
+  var cs = catsBySlug(cats);
+  var catSlugs = Object.keys(cs);
   var cat = catSlugs.find(c => {
     return etsyProd.tags.split(',').map(t => t.toLowerCase()).find(t => {
       return c.indexOf(t) > -1;
     });
   });
-  return cat ? cats[cat].id : cats.uncategorized.id;
+  return cat ? cs[cat].id : cs.uncategorized.id;
 }
+
+etsyToMoltin.findCategory = findCategory;
