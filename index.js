@@ -4,12 +4,9 @@ var etsyToMoltin = require('./lib/etsy-to-moltin');
 
 module.exports = moltinUploader;
 
-function moltinUploader(util, mapper, done) {
+function moltinUploader(util, done) {
 
-  var etmStream = etsyToMoltin(mapper);
-  etmStream
-    .pipe(concat(gotProducts))
-  ;
+  var stream = concat(gotProducts);
 
   function gotProducts(rows) {
 
@@ -25,8 +22,9 @@ function moltinUploader(util, mapper, done) {
     ;
   }
 
-  return etmStream;
+  return stream;
+//   return etmStream;
 }
 
 moltinUploader.findCategory = etsyToMoltin.findCategory;
-
+moltinUploader.mapStream = etsyToMoltin;
